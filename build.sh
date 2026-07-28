@@ -1,4 +1,4 @@
 mkdir build
 pushd build
-gcc -o snake ../src/snake.c
+gcc -Wall -Wextra -pedantic -o snake ../src/snake.c ../src/terminal.c
 popd
