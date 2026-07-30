@@ -6,6 +6,7 @@
  * TODO: to move it or not to move it, thats the question*/
 #include "terminal.h"
 #include <signal.h>
+#include <stddef.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -39,7 +40,7 @@ int init_term(void) {
 
     // termios config
     // NOTE: -- ICANON makes individual keypresses readables, without waiting
-    // for NL ECHO dictates if the input characters are shown on screen. explore
+    // for NL. ECHO dictates if the input characters are shown on screen. explore
     // other flags in detail later.
     if ((status = tcgetattr(STDIN_FILENO, &t_orig)) != 0) {
         return status;
@@ -48,6 +49,8 @@ int init_term(void) {
     t_new = t_orig;
 
     t_new.c_lflag &= ~(ICANON | ECHO);
+    t_new.c_cc[VMIN] = 0;
+    t_new.c_cc[VTIME] = 0;
 
     tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
 
@@ -56,4 +59,8 @@ int init_term(void) {
 
 void restore_term(void) { tcsetattr(STDIN_FILENO, TCSAFLUSH, &t_orig); }
 
-sig_atomic_t get_quit_status() { return quit; }
+sig_atomic_t get_quit_status(void) { return quit; }
+
+size_t terminal_write(const void *buf, size_t n) {
+    return write(STDOUT_FILENO, buf, n);
+}
