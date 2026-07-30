@@ -9,8 +9,8 @@
 
 #define TARGET_FPS 60.0
 #define TARGET_DT (1.0 / TARGET_FPS)
-#define ROWS 32
-#define COLS 128
+#define ROWS 43
+#define COLS 80
 
 static char board[ROWS][COLS];
 
@@ -35,28 +35,29 @@ static void sleep_seconds(double seconds) {
 // }
 
 static void reset_cursor(void) {
-    printf("\x1B[H");
+    const char buf[] = "\x1B[H";
+    terminal_write(buf, sizeof(buf));
 }
 
-static void draw_board(char board[ROWS][COLS]) {
+static void set_borders(char board[ROWS][COLS]) {
+    for (int i = 0; i < (COLS - 1) ; i++) {
+        board[0][i] = '#';
+        board[ROWS-1][i] = '#';
+    }
+    board[0][COLS-1] = '\n';
+    board[ROWS-1][COLS-1] = '\n';
+
+    for (int i = 0; i < ROWS - 1; i++) {
+        board[i][0] = '#';
+        board[i][COLS-2] = '#';
+        board[i][COLS-1] = '\n';
+    }
+}
+
+static void draw(void) {
+    set_borders(board);
     reset_cursor();
-    for (int i = 0; i < COLS + 2; i++) {
-        printf("-");
-    }
-    printf("\n");
-
-    for (int i = 0; i < ROWS; i++) {
-        printf("|");
-        for (int j = 0; j < COLS; j++) {
-            printf("%c", board[i][j]);
-        }
-        printf("|\n");
-    }
-
-    for (int i = 0; i < COLS + 2; i++) {
-        printf("-");
-    }
-    printf("\n");
+    terminal_write(board, ROWS*COLS);
 }
 
 int main(void) {
@@ -80,7 +81,7 @@ int main(void) {
         // TODO:
         // input();
         // update(dt);
-        draw_board(board);
+        draw();
         // render();
 
         frame_end = get_time_seconds();
