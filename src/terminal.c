@@ -61,6 +61,10 @@ void restore_term(void) { tcsetattr(STDIN_FILENO, TCSAFLUSH, &t_orig); }
 
 sig_atomic_t get_quit_status(void) { return quit; }
 
-size_t terminal_write(const void *buf, size_t n) {
+ssize_t terminal_write(const void *buf, size_t n) {
     return write(STDOUT_FILENO, buf, n);
+}
+
+ssize_t terminal_read(void *buf, size_t n) {
+    return read(STDIN_FILENO, buf, n);
 }
